@@ -1,0 +1,20 @@
+﻿using qrschool.Pages;
+
+namespace qrschool.Pages;
+
+public partial class MainPage : ContentPage
+{
+    private readonly IServiceProvider _services;
+
+    public MainPage(IServiceProvider services)
+    {
+        InitializeComponent();
+        _services = services;
+    }
+
+    private async void OnScanClicked(object sender, EventArgs e)
+    {
+        var scanPage = _services.GetRequiredService<ScanPage>();
+        await Navigation.PushAsync(scanPage);
+    }
+}
