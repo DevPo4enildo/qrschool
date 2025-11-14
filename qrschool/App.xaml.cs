@@ -8,7 +8,7 @@ namespace qrschool
         public App(MainPage mainPage)
         {
             InitializeComponent();
-            MainPage = new NavigationPage(MainPage);
+            MainPage = new NavigationPage(mainPage);
         }
     }
 }
