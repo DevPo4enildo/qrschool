@@ -1,64 +1,87 @@
 using CommunityToolkit.Mvvm.ComponentModel;
 using CommunityToolkit.Mvvm.Input;
-using System.Collections.ObjectModel;
-using System.Windows.Input;
 using qrschool.Models;
 using qrschool.Services;
+using System.Collections.ObjectModel;
+using System.Windows.Input;
 
 namespace qrschool.Pages;
 
 public partial class CRUDPage : ContentPage
 {
+    public CRUDPage(AddEquipmentViewModel viewModel)
+    {
+        InitializeComponent();
+        BindingContext = viewModel;
+    }
+
     public partial class AddEquipmentViewModel : ObservableObject
     {
         private readonly IEquipmentService _equipmentService;
 
         [ObservableProperty]
-        private Equipment _equipment;
+        private Equipment _equipment = new();
 
         [ObservableProperty]
-        private ObservableCollection<string> _equipmentTypes;
+        private Equipment? _selectedEquipment;
 
         [ObservableProperty]
-        private ObservableCollection<string> _statusOptions;
+        private ObservableCollection<Equipment> _equipmentItems = new();
 
         [ObservableProperty]
-        private ObservableCollection<string> _officeList;
+        private ObservableCollection<string> _equipmentTypes = new();
+
+        [ObservableProperty]
+        private ObservableCollection<string> _statusOptions = new();
+
+        [ObservableProperty]
+        private ObservableCollection<string> _officeList = new();
 
         [ObservableProperty]
         private bool _isBusy;
 
-        [ObservableProperty]
-        private string _selectedType;
-
-        [ObservableProperty]
-        private string _selectedOffice;
-
-        [ObservableProperty]
-        private string _selectedStatus;
-
         public ICommand SaveCommand { get; }
-        public ICommand CancelCommand { get; }
-        public ICommand AddNewOfficeCommand { get; }
+        public ICommand UpdateCommand { get; }
+        public ICommand DeleteCommand { get; }
+        public ICommand ClearCommand { get; }
 
         public AddEquipmentViewModel(IEquipmentService equipmentService)
         {
             _equipmentService = equipmentService;
-            Equipment = new Equipment();
-
-            EquipmentTypes = new ObservableCollection<string>();
-            StatusOptions = new ObservableCollection<string>();
-            OfficeList = new ObservableCollection<string>();
 
             SaveCommand = new AsyncRelayCommand(OnSaveAsync);
-            CancelCommand = new AsyncRelayCommand(OnCancelAsync);
-            AddNewOfficeCommand = new AsyncRelayCommand(OnAddNewOfficeAsync);
+            UpdateCommand = new AsyncRelayCommand(OnUpdateAsync);
+            DeleteCommand = new AsyncRelayCommand(OnDeleteAsync);
+            ClearCommand = new RelayCommand(ClearForm);
 
-            LoadDataAsync();
+            _ = LoadDataAsync();
+        }
+
+        partial void OnSelectedEquipmentChanged(Equipment? value)
+        {
+            if (value == null)
+            {
+                return;
+            }
+
+            Equipment = new Equipment
+            {
+                Id = value.Id,
+                Type = value.Type,
+                Office = value.Office,
+                Status = value.Status,
+                Description = value.Description,
+                CreatedDate = value.CreatedDate
+            };
         }
 
         private async Task LoadDataAsync()
         {
+            if (IsBusy)
+            {
+                return;
+            }
+
             try
             {
                 IsBusy = true;
@@ -66,23 +89,16 @@ public partial class CRUDPage : ContentPage
                 var types = await _equipmentService.GetEquipmentTypesAsync();
                 var offices = await _equipmentService.GetOfficesAsync();
                 var statuses = await _equipmentService.GetStatusOptionsAsync();
+                var items = await _equipmentService.GetAllEquipmentAsync();
 
-                EquipmentTypes.Clear();
-                foreach (var type in types)
-                    EquipmentTypes.Add(type);
-
-                OfficeList.Clear();
-                foreach (var office in offices)
-                    OfficeList.Add(office);
-
-                StatusOptions.Clear();
-                foreach (var status in statuses)
-                    StatusOptions.Add(status);
+                EquipmentTypes = new ObservableCollection<string>(types);
+                OfficeList = new ObservableCollection<string>(offices);
+                StatusOptions = new ObservableCollection<string>(statuses);
+                EquipmentItems = new ObservableCollection<Equipment>(items);
             }
             catch (Exception ex)
             {
-                await Application.Current.MainPage.DisplayAlert("Ошибка",
-                    $"Не удалось загрузить данные: {ex.Message}", "OK");
+                await ShowAlert("РћС€РёР±РєР°", $"РќРµ СѓРґР°Р»РѕСЃСЊ Р·Р°РіСЂСѓР·РёС‚СЊ РґР°РЅРЅС‹Рµ: {ex.Message}");
             }
             finally
             {
@@ -92,127 +108,99 @@ public partial class CRUDPage : ContentPage
 
         private async Task OnSaveAsync()
         {
-            try
+            if (!ValidateForm())
             {
-                // Валидация
-                if (string.IsNullOrWhiteSpace(Equipment.Type))
-                {
-                    await Application.Current.MainPage.DisplayAlert("Ошибка",
-                        "Укажите тип техники", "OK");
-                    return;
-                }
-
-                if (string.IsNullOrWhiteSpace(Equipment.Office))
-                {
-                    await Application.Current.MainPage.DisplayAlert("Ошибка",
-                        "Укажите кабинет", "OK");
-                    return;
-                }
-
-                if (string.IsNullOrWhiteSpace(Equipment.Status))
-                {
-                    await Application.Current.MainPage.DisplayAlert("Ошибка",
-                        "Укажите статус", "OK");
-                    return;
-                }
-
-                IsBusy = true;
-
-                // Сохранение в базу
-                bool result = await _equipmentService.AddEquipmentAsync(Equipment);
-
-                if (result)
-                {
-                    await Application.Current.MainPage.DisplayAlert("Успех",
-                        "Техника успешно добавлена!", "OK");
-
-                    // Очистка формы
-                    Equipment = new Equipment();
-
-                    // Возврат на предыдущую страницу
-                    await Shell.Current.GoToAsync("..");
-                }
-                else
-                {
-                    await Application.Current.MainPage.DisplayAlert("Ошибка",
-                        "Не удалось сохранить технику", "OK");
-                }
+                return;
             }
-            catch (Exception ex)
+
+            Equipment.CreatedDate = DateTime.UtcNow;
+            var created = await _equipmentService.AddEquipmentAsync(Equipment);
+            if (!created)
             {
-                await Application.Current.MainPage.DisplayAlert("Ошибка",
-                    $"Ошибка сохранения: {ex.Message}", "OK");
+                await ShowAlert("РћС€РёР±РєР°", "РќРµ СѓРґР°Р»РѕСЃСЊ СЃРѕР·РґР°С‚СЊ Р·Р°РїРёСЃСЊ");
+                return;
             }
-            finally
-            {
-                IsBusy = false;
-            }
+
+            await LoadDataAsync();
+            ClearForm();
         }
 
-        private async Task OnCancelAsync()
+        private async Task OnUpdateAsync()
         {
-            bool confirm = await Application.Current.MainPage.DisplayAlert(
-                "Подтверждение",
-                "Отменить добавление техники? Все несохранённые данные будут потеряны.",
-                "Да, отменить",
-                "Нет, продолжить");
-
-            if (confirm)
+            if (Equipment.Id <= 0)
             {
-                await Shell.Current.GoToAsync("..");
+                await ShowAlert("РћС€РёР±РєР°", "Р’С‹Р±РµСЂРёС‚Рµ Р·Р°РїРёСЃСЊ РґР»СЏ РѕР±РЅРѕРІР»РµРЅРёСЏ");
+                return;
             }
-        }
 
-        private async Task OnAddNewOfficeAsync()
-        {
-            string newOffice = await Application.Current.MainPage.DisplayPromptAsync(
-                "Новый кабинет",
-                "Введите номер кабинета:",
-                "Добавить",
-                "Отмена",
-                "Например: 405",
-                -1,
-                Keyboard.Numeric);
-
-            if (!string.IsNullOrWhiteSpace(newOffice))
+            if (!ValidateForm())
             {
-                if (!OfficeList.Contains(newOffice))
-                {
-                    OfficeList.Add(newOffice);
-
-                    // Сортируем список кабинетов
-                    var sorted = OfficeList.OrderBy(o => o).ToList();
-                    OfficeList.Clear();
-                    foreach (var office in sorted)
-                        OfficeList.Add(office);
-
-                    Equipment.Office = newOffice;
-                }
-                else
-                {
-                    await Application.Current.MainPage.DisplayAlert("Внимание",
-                        "Такой кабинет уже существует", "OK");
-                }
+                return;
             }
+
+            var updated = await _equipmentService.UpdateEquipmentAsync(Equipment);
+            if (!updated)
+            {
+                await ShowAlert("РћС€РёР±РєР°", "РќРµ СѓРґР°Р»РѕСЃСЊ РѕР±РЅРѕРІРёС‚СЊ Р·Р°РїРёСЃСЊ");
+                return;
+            }
+
+            await LoadDataAsync();
+            ClearForm();
         }
 
-        // Методы для отслеживания изменений в выпадающих списках
-        partial void OnSelectedTypeChanged(string value)
+        private async Task OnDeleteAsync()
         {
-            if (!string.IsNullOrEmpty(value))
-                Equipment.Type = value;
+            if (Equipment.Id <= 0)
+            {
+                await ShowAlert("РћС€РёР±РєР°", "Р’С‹Р±РµСЂРёС‚Рµ Р·Р°РїРёСЃСЊ РґР»СЏ СѓРґР°Р»РµРЅРёСЏ");
+                return;
+            }
+
+            var deleted = await _equipmentService.DeleteEquipmentAsync(Equipment.Id);
+            if (!deleted)
+            {
+                await ShowAlert("РћС€РёР±РєР°", "РќРµ СѓРґР°Р»РѕСЃСЊ СѓРґР°Р»РёС‚СЊ Р·Р°РїРёСЃСЊ");
+                return;
+            }
+
+            await LoadDataAsync();
+            ClearForm();
         }
 
-        partial void OnSelectedOfficeChanged(string value)
+        private bool ValidateForm()
         {
-            if (!string.IsNullOrEmpty(value))
-                Equipment.Office = value;
+            if (string.IsNullOrWhiteSpace(Equipment.Type) ||
+                string.IsNullOrWhiteSpace(Equipment.Office) ||
+                string.IsNullOrWhiteSpace(Equipment.Status))
+            {
+                _ = ShowAlert("РџСЂРѕРІРµСЂРєР°", "Р—Р°РїРѕР»РЅРёС‚Рµ С‚РёРї, РєР°Р±РёРЅРµС‚ Рё СЃС‚Р°С‚СѓСЃ");
+                return false;
+            }
+
+            if (!OfficeList.Contains(Equipment.Office))
+            {
+                OfficeList.Add(Equipment.Office);
+            }
+
+            return true;
         }
 
-        partial void OnSelectedStatusChanged(string value)
+        private void ClearForm()
         {
-            if (!string.IsNullOrEmpty(value))
-                Equipment.Status = value;
+            SelectedEquipment = null;
+            Equipment = new Equipment();
+        }
+
+        private static Task ShowAlert(string title, string message)
+        {
+            return MainThread.InvokeOnMainThreadAsync(async () =>
+            {
+                if (Application.Current?.MainPage != null)
+                {
+                    await Application.Current.MainPage.DisplayAlert(title, message, "OK");
+                }
+            });
         }
     }
 }
