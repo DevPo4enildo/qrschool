@@ -9,6 +9,12 @@ namespace qrschool.Pages;
 
 public partial class CRUDPage : ContentPage
 {
+    public CRUDPage()
+    {
+        InitializeComponent();
+        BindingContext = new AddEquipmentViewModel(new MockEquipmentService());
+    }
+
     public partial class AddEquipmentViewModel : ObservableObject
     {
         private readonly IEquipmentService _equipmentService;
