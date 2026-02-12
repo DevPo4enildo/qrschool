@@ -125,6 +125,7 @@ namespace qrschool.Services
             return new List<string>
             {
                 "Компьютер",
+                "Переферия",
                 "Монитор",
                 "Принтер",
                 "Сканер",

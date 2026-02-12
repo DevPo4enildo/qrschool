@@ -26,18 +26,8 @@
                        FontSize="Medium"
                        TextColor="{StaticResource Primary}"/>
 
-                    <Grid ColumnDefinitions="*, Auto">
-                        <Picker Grid.Column="0"
-                            Title="Выберите кабинет"
-                            ItemsSource="{Binding OfficeList}"
-                            SelectedItem="{Binding Equipment.Office}"/>
-
-                        <Button Grid.Column="1"
-                            Text="+"
-                            WidthRequest="50"
-                            Command="{Binding AddOfficeCommand}"
-                            Margin="10,0,0,0"/>
-                    </Grid>
+                    <Entry Placeholder="Введите кабинет"
+                        Text="{Binding Equipment.Office}"/>
                 </VerticalStackLayout>
 
                 <!-- Статус -->
@@ -46,9 +36,8 @@
                        FontSize="Medium"
                        TextColor="{StaticResource Primary}"/>
 
-                    <Picker Title="Выберите статус"
-                        ItemsSource="{Binding StatusOptions}"
-                        SelectedItem="{Binding Equipment.Status}"/>
+                    <Entry Placeholder="Введите статус"
+                        Text="{Binding Equipment.Status}"/>
                 </VerticalStackLayout>
 
                 <!-- Описание -->
