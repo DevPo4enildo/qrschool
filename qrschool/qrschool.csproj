@@ -66,12 +66,18 @@
 	</ItemGroup>
 
 	<ItemGroup>
+	  <Compile Update="Pages\CRUDPage.xaml.cs">
+	    <DependentUpon>CRUDPage.xaml</DependentUpon>
+	  </Compile>
 	  <Compile Update="Pages\ScanPage.xaml.cs">
 	    <DependentUpon>ScanPage.xaml</DependentUpon>
 	  </Compile>
 	</ItemGroup>
 
 	<ItemGroup>
+	  <MauiXaml Update="Pages\CRUDPage.xaml">
+	    <Generator>MSBuild:Compile</Generator>
+	  </MauiXaml>
 	  <MauiXaml Update="Pages\ScanPage.xaml">
 	    <Generator>MSBuild:Compile</Generator>
 	  </MauiXaml>

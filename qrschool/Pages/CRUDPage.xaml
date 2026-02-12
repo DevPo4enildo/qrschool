@@ -1,0 +1,83 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="qrschool.Pages.CRUDPage"
+             Title="Добавление техники">
+    
+            <VerticalStackLayout Spacing="20" Padding="20">
+
+                <!-- Тип техники -->
+                <VerticalStackLayout Spacing="5">
+                    <Label Text="Тип техники*"
+                       FontSize="Medium"
+                       TextColor="{StaticResource Primary}"/>
+
+                    <Picker Title="Выберите тип"
+                        ItemsSource="{Binding EquipmentTypes}"
+                        SelectedItem="{Binding Equipment.Type}">
+                    <Picker.Behaviors>
+                    </Picker.Behaviors>
+                    </Picker>
+                </VerticalStackLayout>
+
+                <!-- Кабинет -->
+                <VerticalStackLayout Spacing="5">
+                    <Label Text="Кабинет*"
+                       FontSize="Medium"
+                       TextColor="{StaticResource Primary}"/>
+
+                    <Grid ColumnDefinitions="*, Auto">
+                        <Picker Grid.Column="0"
+                            Title="Выберите кабинет"
+                            ItemsSource="{Binding OfficeList}"
+                            SelectedItem="{Binding Equipment.Office}"/>
+
+                        <Button Grid.Column="1"
+                            Text="+"
+                            WidthRequest="50"
+                            Command="{Binding AddOfficeCommand}"
+                            Margin="10,0,0,0"/>
+                    </Grid>
+                </VerticalStackLayout>
+
+                <!-- Статус -->
+                <VerticalStackLayout Spacing="5">
+                    <Label Text="Статус*"
+                       FontSize="Medium"
+                       TextColor="{StaticResource Primary}"/>
+
+                    <Picker Title="Выберите статус"
+                        ItemsSource="{Binding StatusOptions}"
+                        SelectedItem="{Binding Equipment.Status}"/>
+                </VerticalStackLayout>
+
+                <!-- Описание -->
+                <VerticalStackLayout Spacing="5">
+                    <Label Text="Описание"
+                       FontSize="Medium"
+                       TextColor="{StaticResource Primary}"/>
+
+                    <Editor Placeholder="Введите описание техники..."
+                        Text="{Binding Equipment.Description}"
+                        AutoSize="TextChanges"
+                        HeightRequest="100"/>
+                </VerticalStackLayout>
+
+                <!-- Кнопки действий -->
+                <Grid ColumnDefinitions="*, *" ColumnSpacing="10" Margin="0,30,0,0">
+                    <Button Grid.Column="0"
+                        Text="Отмена"
+                        BackgroundColor="LightGray"
+                        TextColor="Black"
+                        Command="{Binding CancelCommand}"/>
+
+                    <Button Grid.Column="1"
+                        Text="Сохранить"
+                        BackgroundColor="{StaticResource Primary}"
+                        TextColor="White"
+                        Command="{Binding SaveCommand}"/>
+                </Grid>
+
+            </VerticalStackLayout>
+    
+</ContentPage>

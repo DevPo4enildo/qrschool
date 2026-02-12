@@ -19,11 +19,12 @@ namespace qrschool
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
                 });
-            string connectionString = "Host=192.168.132.1;Port=5432;Database=qr;Username=postgres;Password=";
+            string connectionString = "Host=localhost;Port=5432;Database=postgres;Username=postgres;Password=123";
             builder.Services.AddSingleton<InventoryRepository>(_ => new InventoryRepository(connectionString));
 
             builder.Services.AddTransient<MainPage>();
             builder.Services.AddTransient<ScanPage>();
+            builder.Services.AddTransient<CRUDPage>();
 #if DEBUG
             builder.Logging.AddDebug();
 #endif

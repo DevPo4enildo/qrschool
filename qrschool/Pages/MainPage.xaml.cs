@@ -17,4 +17,9 @@ public partial class MainPage : ContentPage
         var scanPage = _services.GetRequiredService<ScanPage>();
         await Navigation.PushAsync(scanPage);
     }
+    private async void OnCRUDPage(object sender, EventArgs e)
+    {
+        var CRUDPage = _services.GetRequiredService<CRUDPage>();
+        await Navigation.PushAsync(CRUDPage);
+    }
 }

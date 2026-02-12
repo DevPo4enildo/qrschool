@@ -13,5 +13,7 @@
 
         <Button Text="Сканировать QR"
                 Clicked="OnScanClicked" />
+        <Button Text="Добавить технику"
+                Clicked="OnCRUDPage"/>
     </VerticalStackLayout>
 </ContentPage>
