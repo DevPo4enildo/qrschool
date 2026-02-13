@@ -32,6 +32,7 @@ namespace qrschool.Services
                 {
                     Id = _nextId++,
                     Type = "Компьютер",
+                    InventoryNumber = "INV-001",
                     Office = "101",
                     Status = "Рабочий",
                     Description = "Игровой ПК для разработки",
@@ -41,6 +42,7 @@ namespace qrschool.Services
                 {
                     Id = _nextId++,
                     Type = "Монитор",
+                    InventoryNumber = "INV-002",
                     Office = "102",
                     Status = "Рабочий",
                     Description = "27-дюймовый 4K монитор",
@@ -50,6 +52,7 @@ namespace qrschool.Services
                 {
                     Id = _nextId++,
                     Type = "Принтер",
+                    InventoryNumber = "INV-003",
                     Office = "201",
                     Status = "В ремонте",
                     Description = "Лазерный принтер HP",
@@ -99,6 +102,7 @@ namespace qrschool.Services
             if (existing != null)
             {
                 existing.Type = equipment.Type;
+                existing.InventoryNumber = equipment.InventoryNumber;
                 existing.Office = equipment.Office;
                 existing.Status = equipment.Status;
                 existing.Description = equipment.Description;

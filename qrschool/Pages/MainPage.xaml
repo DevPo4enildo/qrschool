@@ -15,5 +15,7 @@
                 Clicked="OnScanClicked" />
         <Button Text="Добавить технику"
                 Clicked="OnCRUDPage"/>
+        <Button Text="Просмотр техники"
+                Clicked="OnEquipmentListPage"/>
     </VerticalStackLayout>
 </ContentPage>

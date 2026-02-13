@@ -1,5 +1,3 @@
-﻿using qrschool.Pages;
-
 namespace qrschool.Pages;
 
 public partial class MainPage : ContentPage
@@ -17,9 +15,16 @@ public partial class MainPage : ContentPage
         var scanPage = _services.GetRequiredService<ScanPage>();
         await Navigation.PushAsync(scanPage);
     }
+
     private async void OnCRUDPage(object sender, EventArgs e)
     {
-        var CRUDPage = _services.GetRequiredService<CRUDPage>();
-        await Navigation.PushAsync(CRUDPage);
+        var crudPage = _services.GetRequiredService<CRUDPage>();
+        await Navigation.PushAsync(crudPage);
+    }
+
+    private async void OnEquipmentListPage(object sender, EventArgs e)
+    {
+        var equipmentListPage = _services.GetRequiredService<EquipmentListPage>();
+        await Navigation.PushAsync(equipmentListPage);
     }
 }

@@ -1,0 +1,42 @@
+<?xml version="1.0" encoding="utf-8" ?>
+<ContentPage xmlns="http://schemas.microsoft.com/dotnet/2021/maui"
+             xmlns:x="http://schemas.microsoft.com/winfx/2009/xaml"
+             x:Class="qrschool.Pages.EquipmentListPage"
+             Title="Список техники">
+
+    <Grid Padding="20" RowDefinitions="Auto,*" RowSpacing="10">
+        <Label Text="Добавленная техника"
+               FontSize="22"
+               FontAttributes="Bold" />
+
+        <CollectionView Grid.Row="1"
+                        ItemsSource="{Binding EquipmentItems}">
+            <CollectionView.EmptyView>
+                <Label Text="Пока нет добавленной техники"
+                       HorizontalOptions="Center"
+                       VerticalOptions="Center"
+                       TextColor="Gray" />
+            </CollectionView.EmptyView>
+
+            <CollectionView.ItemTemplate>
+                <DataTemplate>
+                    <Frame Padding="12"
+                           Margin="0,0,0,10"
+                           BorderColor="#E0E0E0"
+                           CornerRadius="8">
+                        <VerticalStackLayout Spacing="4">
+                            <Label Text="{Binding Type}"
+                                   FontAttributes="Bold"
+                                   FontSize="18" />
+                            <Label Text="{Binding InventoryNumber, StringFormat='Инвентарный номер: {0}'}" />
+                            <Label Text="{Binding Office, StringFormat='Кабинет: {0}'}" />
+                            <Label Text="{Binding Status, StringFormat='Статус: {0}'}" />
+                            <Label Text="{Binding Description}"
+                                   TextColor="Gray" />
+                        </VerticalStackLayout>
+                    </Frame>
+                </DataTemplate>
+            </CollectionView.ItemTemplate>
+        </CollectionView>
+    </Grid>
+</ContentPage>

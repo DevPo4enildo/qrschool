@@ -20,6 +20,17 @@
                     </Picker>
                 </VerticalStackLayout>
 
+
+                <!-- Инвентарный номер -->
+                <VerticalStackLayout Spacing="5">
+                    <Label Text="Инвентарный номер*"
+                       FontSize="Medium"
+                       TextColor="{StaticResource Primary}"/>
+
+                    <Entry Placeholder="Введите инвентарный номер"
+                        Text="{Binding Equipment.InventoryNumber}"/>
+                </VerticalStackLayout>
+
                 <!-- Кабинет -->
                 <VerticalStackLayout Spacing="5">
                     <Label Text="Кабинет*"
@@ -35,7 +46,7 @@
                         <Button Grid.Column="1"
                             Text="+"
                             WidthRequest="50"
-                            Command="{Binding AddOfficeCommand}"
+                            Command="{Binding AddNewOfficeCommand}"
                             Margin="10,0,0,0"/>
                     </Grid>
                 </VerticalStackLayout>

@@ -10,6 +10,7 @@ namespace qrschool.Models
         private string _office;
         private string _status;
         private string _description;
+        private string _inventoryNumber;
         private DateTime _createdDate;
         public int Id
         {
@@ -39,6 +40,12 @@ namespace qrschool.Models
         {
             get => _description;
             set => SetProperty(ref _description, value);
+        }
+
+        public string InventoryNumber
+        {
+            get => _inventoryNumber;
+            set => SetProperty(ref _inventoryNumber, value);
         }
 
         public DateTime CreatedDate

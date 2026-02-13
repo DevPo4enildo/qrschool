@@ -9,6 +9,12 @@ namespace qrschool.Pages;
 
 public partial class CRUDPage : ContentPage
 {
+    public CRUDPage(IEquipmentService equipmentService)
+    {
+        InitializeComponent();
+        BindingContext = new AddEquipmentViewModel(equipmentService);
+    }
+
     public partial class AddEquipmentViewModel : ObservableObject
     {
         private readonly IEquipmentService _equipmentService;
@@ -54,7 +60,7 @@ public partial class CRUDPage : ContentPage
             CancelCommand = new AsyncRelayCommand(OnCancelAsync);
             AddNewOfficeCommand = new AsyncRelayCommand(OnAddNewOfficeAsync);
 
-            LoadDataAsync();
+            _ = LoadDataAsync();
         }
 
         private async Task LoadDataAsync()
@@ -81,8 +87,8 @@ public partial class CRUDPage : ContentPage
             }
             catch (Exception ex)
             {
-                await Application.Current.MainPage.DisplayAlert("Ошибка",
-                    $"Не удалось загрузить данные: {ex.Message}", "OK");
+                await Application.Current!.MainPage!.DisplayAlert("РћС€РёР±РєР°",
+                    $"РќРµ СѓРґР°Р»РѕСЃСЊ Р·Р°РіСЂСѓР·РёС‚СЊ РґР°РЅРЅС‹Рµ: {ex.Message}", "OK");
             }
             finally
             {
@@ -94,54 +100,48 @@ public partial class CRUDPage : ContentPage
         {
             try
             {
-                // Валидация
                 if (string.IsNullOrWhiteSpace(Equipment.Type))
                 {
-                    await Application.Current.MainPage.DisplayAlert("Ошибка",
-                        "Укажите тип техники", "OK");
+                    await Application.Current!.MainPage!.DisplayAlert("РћС€РёР±РєР°", "Р’С‹Р±РµСЂРёС‚Рµ С‚РёРї С‚РµС…РЅРёРєРё", "OK");
+                    return;
+                }
+
+                if (string.IsNullOrWhiteSpace(Equipment.InventoryNumber))
+                {
+                    await Application.Current!.MainPage!.DisplayAlert("РћС€РёР±РєР°", "Р’РІРµРґРёС‚Рµ РёРЅРІРµРЅС‚Р°СЂРЅС‹Р№ РЅРѕРјРµСЂ", "OK");
                     return;
                 }
 
                 if (string.IsNullOrWhiteSpace(Equipment.Office))
                 {
-                    await Application.Current.MainPage.DisplayAlert("Ошибка",
-                        "Укажите кабинет", "OK");
+                    await Application.Current!.MainPage!.DisplayAlert("РћС€РёР±РєР°", "Р’С‹Р±РµСЂРёС‚Рµ РєР°Р±РёРЅРµС‚", "OK");
                     return;
                 }
 
                 if (string.IsNullOrWhiteSpace(Equipment.Status))
                 {
-                    await Application.Current.MainPage.DisplayAlert("Ошибка",
-                        "Укажите статус", "OK");
+                    await Application.Current!.MainPage!.DisplayAlert("РћС€РёР±РєР°", "Р’С‹Р±РµСЂРёС‚Рµ СЃС‚Р°С‚СѓСЃ", "OK");
                     return;
                 }
 
                 IsBusy = true;
 
-                // Сохранение в базу
                 bool result = await _equipmentService.AddEquipmentAsync(Equipment);
 
                 if (result)
                 {
-                    await Application.Current.MainPage.DisplayAlert("Успех",
-                        "Техника успешно добавлена!", "OK");
-
-                    // Очистка формы
+                    await Application.Current!.MainPage!.DisplayAlert("РЈСЃРїРµС…", "РўРµС…РЅРёРєР° СѓСЃРїРµС€РЅРѕ СЃРѕС…СЂР°РЅРµРЅР°!", "OK");
                     Equipment = new Equipment();
-
-                    // Возврат на предыдущую страницу
-                    await Shell.Current.GoToAsync("..");
+                    await Application.Current!.MainPage!.Navigation.PopAsync();
                 }
                 else
                 {
-                    await Application.Current.MainPage.DisplayAlert("Ошибка",
-                        "Не удалось сохранить технику", "OK");
+                    await Application.Current!.MainPage!.DisplayAlert("РћС€РёР±РєР°", "РќРµ СѓРґР°Р»РѕСЃСЊ СЃРѕС…СЂР°РЅРёС‚СЊ С‚РµС…РЅРёРєСѓ", "OK");
                 }
             }
             catch (Exception ex)
             {
-                await Application.Current.MainPage.DisplayAlert("Ошибка",
-                    $"Ошибка сохранения: {ex.Message}", "OK");
+                await Application.Current!.MainPage!.DisplayAlert("РћС€РёР±РєР°", $"РћС€РёР±РєР° СЃРѕС…СЂР°РЅРµРЅРёСЏ: {ex.Message}", "OK");
             }
             finally
             {
@@ -151,26 +151,26 @@ public partial class CRUDPage : ContentPage
 
         private async Task OnCancelAsync()
         {
-            bool confirm = await Application.Current.MainPage.DisplayAlert(
-                "Подтверждение",
-                "Отменить добавление техники? Все несохранённые данные будут потеряны.",
-                "Да, отменить",
-                "Нет, продолжить");
+            bool confirm = await Application.Current!.MainPage!.DisplayAlert(
+                "РџРѕРґС‚РІРµСЂР¶РґРµРЅРёРµ",
+                "РћС‚РјРµРЅРёС‚СЊ РґРѕР±Р°РІР»РµРЅРёРµ С‚РµС…РЅРёРєРё? РќРµСЃРѕС…СЂР°РЅС‘РЅРЅС‹Рµ РґР°РЅРЅС‹Рµ Р±СѓРґСѓС‚ РїРѕС‚РµСЂСЏРЅС‹.",
+                "Р”Р°",
+                "РќРµС‚");
 
             if (confirm)
             {
-                await Shell.Current.GoToAsync("..");
+                await Application.Current!.MainPage!.Navigation.PopAsync();
             }
         }
 
         private async Task OnAddNewOfficeAsync()
         {
-            string newOffice = await Application.Current.MainPage.DisplayPromptAsync(
-                "Новый кабинет",
-                "Введите номер кабинета:",
-                "Добавить",
-                "Отмена",
-                "Например: 405",
+            string newOffice = await Application.Current!.MainPage!.DisplayPromptAsync(
+                "РќРѕРІС‹Р№ РєР°Р±РёРЅРµС‚",
+                "Р’РІРµРґРёС‚Рµ РЅРѕРјРµСЂ РєР°Р±РёРЅРµС‚Р°:",
+                "Р”РѕР±Р°РІРёС‚СЊ",
+                "РћС‚РјРµРЅР°",
+                "РќР°РїСЂРёРјРµСЂ: 405",
                 -1,
                 Keyboard.Numeric);
 
@@ -180,7 +180,6 @@ public partial class CRUDPage : ContentPage
                 {
                     OfficeList.Add(newOffice);
 
-                    // Сортируем список кабинетов
                     var sorted = OfficeList.OrderBy(o => o).ToList();
                     OfficeList.Clear();
                     foreach (var office in sorted)
@@ -190,13 +189,11 @@ public partial class CRUDPage : ContentPage
                 }
                 else
                 {
-                    await Application.Current.MainPage.DisplayAlert("Внимание",
-                        "Такой кабинет уже существует", "OK");
+                    await Application.Current!.MainPage!.DisplayAlert("Р’РЅРёРјР°РЅРёРµ", "РўР°РєРѕР№ РєР°Р±РёРЅРµС‚ СѓР¶Рµ СЃСѓС‰РµСЃС‚РІСѓРµС‚", "OK");
                 }
             }
         }
 
-        // Методы для отслеживания изменений в выпадающих списках
         partial void OnSelectedTypeChanged(string value)
         {
             if (!string.IsNullOrEmpty(value))
