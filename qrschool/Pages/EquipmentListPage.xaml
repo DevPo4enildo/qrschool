@@ -9,10 +9,12 @@
                FontSize="22"
                FontAttributes="Bold" />
 
-        <Button Grid.Row="1"
-                Text="Выгрузить в Excel"
-                HorizontalOptions="Start"
-                Clicked="OnExportToExcelClicked" />
+        <HorizontalStackLayout Grid.Row="1" Spacing="10">
+            <Button Text="Выгрузить в Excel"
+                    Clicked="OnExportToExcelClicked" />
+            <Button Text="Загрузить из Excel"
+                    Clicked="OnImportFromExcelClicked" />
+        </HorizontalStackLayout>
 
         <CollectionView Grid.Row="2"
                         ItemsSource="{Binding EquipmentItems}">
@@ -38,6 +40,11 @@
                             <Label Text="{Binding Status, StringFormat='Статус: {0}'}" />
                             <Label Text="{Binding Description}"
                                    TextColor="Gray" />
+
+                            <Button Text="Редактировать"
+                                    Margin="0,8,0,0"
+                                    Clicked="OnEditEquipmentClicked"
+                                    CommandParameter="{Binding .}" />
                         </VerticalStackLayout>
                     </Frame>
                 </DataTemplate>
