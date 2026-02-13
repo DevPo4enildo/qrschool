@@ -10,7 +10,9 @@
                FontAttributes="Bold" />
 
         <CollectionView Grid.Row="1"
-                        ItemsSource="{Binding EquipmentItems}">
+                        ItemsSource="{Binding EquipmentItems}"
+                        SelectionMode="Single"
+                        SelectionChanged="OnEquipmentSelectionChanged">
             <CollectionView.EmptyView>
                 <Label Text="Пока нет добавленной техники"
                        HorizontalOptions="Center"

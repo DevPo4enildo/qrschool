@@ -33,4 +33,26 @@ public partial class EquipmentListPage : ContentPage
             EquipmentItems.Add(item);
         }
     }
+
+    private async void OnEquipmentSelectionChanged(object sender, SelectionChangedEventArgs e)
+    {
+        if (e.CurrentSelection.FirstOrDefault() is not Equipment selectedEquipment)
+        {
+            return;
+        }
+
+        await DisplayAlert(
+            "Карточка техники",
+            $"Тип: {selectedEquipment.Type}\n" +
+            $"Инвентарный номер: {selectedEquipment.InventoryNumber}\n" +
+            $"Кабинет: {selectedEquipment.Office}\n" +
+            $"Статус: {selectedEquipment.Status}\n" +
+            $"Описание: {selectedEquipment.Description}",
+            "OK");
+
+        if (sender is CollectionView collectionView)
+        {
+            collectionView.SelectedItem = null;
+        }
+    }
 }
