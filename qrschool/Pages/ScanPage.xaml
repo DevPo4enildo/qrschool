@@ -6,7 +6,7 @@
     xmlns:zxing="clr-namespace:ZXing.Net.Maui.Controls;assembly=ZXing.Net.MAUI.Controls"
     Title="Сканирование">
 
-    <Grid RowDefinitions="*,Auto,Auto" Padding="10">
+    <Grid RowDefinitions="*,Auto,Auto,Auto" Padding="10">
 
         <zxing:CameraBarcodeReaderView x:Name="CameraView"
                                        Grid.Row="0"
@@ -30,6 +30,13 @@
                        LineBreakMode="WordWrap" />
             </VerticalStackLayout>
         </Frame>
+
+        <Button Grid.Row="3"
+                x:Name="ExportButton"
+                Text="Выгрузить в Excel"
+                IsEnabled="False"
+                Margin="0,10,0,0"
+                Clicked="OnExportClicked" />
 
     </Grid>
 </ContentPage>
