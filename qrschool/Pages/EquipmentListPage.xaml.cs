@@ -37,6 +37,102 @@ public partial class EquipmentListPage : ContentPage
         }
     }
 
+    private async void OnImportFromExcelClicked(object sender, EventArgs e)
+    {
+        try
+        {
+            var result = await FilePicker.PickAsync(new PickOptions
+            {
+                PickerTitle = "Выберите Excel-файл",
+                FileTypes = new FilePickerFileType(new Dictionary<DevicePlatform, IEnumerable<string>>
+                {
+                    { DevicePlatform.WinUI, new[] { ".xlsx" } },
+                    { DevicePlatform.Android, new[] { "application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" } },
+                    { DevicePlatform.iOS, new[] { "com.microsoft.excel.xlsx" } },
+                    { DevicePlatform.MacCatalyst, new[] { "org.openxmlformats.spreadsheetml.sheet" } }
+                })
+            });
+
+            if (result == null)
+                return;
+
+            if (!result.FileName.EndsWith(".xlsx", StringComparison.OrdinalIgnoreCase))
+            {
+                await DisplayAlert("Неверный формат", "Выберите файл в формате .xlsx", "OK");
+                return;
+            }
+
+            using var stream = await result.OpenReadAsync();
+            var importedItems = ReadEquipmentFromExcel(stream).ToList();
+
+            if (importedItems.Count == 0)
+            {
+                await DisplayAlert("Нет данных", "В файле нет подходящих строк для импорта.", "OK");
+                return;
+            }
+
+            var importedCount = 0;
+            foreach (var item in importedItems)
+            {
+                if (await _equipmentService.AddEquipmentAsync(item))
+                {
+                    importedCount++;
+                }
+            }
+
+            await LoadEquipmentAsync();
+            await DisplayAlert("Импорт завершён", $"Успешно импортировано записей: {importedCount}", "OK");
+        }
+        catch (Exception ex)
+        {
+            await DisplayAlert("Ошибка", $"Не удалось импортировать данные: {ex.Message}", "OK");
+        }
+    }
+
+    private async void OnEditEquipmentClicked(object sender, EventArgs e)
+    {
+        if (sender is not Button { CommandParameter: Equipment equipment })
+            return;
+
+        var type = await DisplayPromptAsync("Редактирование", "Тип", initialValue: equipment.Type);
+        if (type is null)
+            return;
+
+        var inventoryNumber = await DisplayPromptAsync("Редактирование", "Инвентарный номер", initialValue: equipment.InventoryNumber);
+        if (inventoryNumber is null)
+            return;
+
+        var office = await DisplayPromptAsync("Редактирование", "Кабинет", initialValue: equipment.Office);
+        if (office is null)
+            return;
+
+        var status = await DisplayPromptAsync("Редактирование", "Статус", initialValue: equipment.Status);
+        if (status is null)
+            return;
+
+        var description = await DisplayPromptAsync("Редактирование", "Описание", initialValue: equipment.Description);
+
+        var updatedEquipment = new Equipment
+        {
+            Id = equipment.Id,
+            Type = type.Trim(),
+            InventoryNumber = inventoryNumber.Trim(),
+            Office = office.Trim(),
+            Status = status.Trim(),
+            Description = description?.Trim() ?? string.Empty,
+            CreatedDate = equipment.CreatedDate
+        };
+
+        var success = await _equipmentService.UpdateEquipmentAsync(updatedEquipment);
+        if (!success)
+        {
+            await DisplayAlert("Ошибка", "Не удалось сохранить изменения.", "OK");
+            return;
+        }
+
+        await LoadEquipmentAsync();
+    }
+
     private async void OnExportToExcelClicked(object sender, EventArgs e)
     {
         if (EquipmentItems.Count == 0)
@@ -62,6 +158,57 @@ public partial class EquipmentListPage : ContentPage
         {
             await DisplayAlert("Ошибка", $"Не удалось создать Excel-файл: {ex.Message}", "OK");
         }
+    }
+
+    private static IEnumerable<Equipment> ReadEquipmentFromExcel(Stream stream)
+    {
+        using var document = SpreadsheetDocument.Open(stream, false);
+        var workbookPart = document.WorkbookPart;
+        if (workbookPart?.Workbook == null)
+            yield break;
+
+        var firstSheet = workbookPart.Workbook.Descendants<Sheet>().FirstOrDefault();
+        if (firstSheet == null)
+            yield break;
+
+        var worksheetPart = (WorksheetPart)workbookPart.GetPartById(firstSheet.Id!);
+        var rows = worksheetPart.Worksheet.GetFirstChild<SheetData>()?.Elements<Row>().Skip(1) ?? Enumerable.Empty<Row>();
+
+        foreach (var row in rows)
+        {
+            var values = row.Elements<Cell>().Select(c => GetCellValue(workbookPart, c)).ToList();
+            if (values.All(string.IsNullOrWhiteSpace))
+                continue;
+
+            yield return new Equipment
+            {
+                Type = values.ElementAtOrDefault(0) ?? string.Empty,
+                InventoryNumber = values.ElementAtOrDefault(1) ?? string.Empty,
+                Office = values.ElementAtOrDefault(2) ?? string.Empty,
+                Status = values.ElementAtOrDefault(3) ?? string.Empty,
+                Description = values.ElementAtOrDefault(4) ?? string.Empty,
+                CreatedDate = DateTime.Now
+            };
+        }
+    }
+
+    private static string GetCellValue(WorkbookPart workbookPart, Cell cell)
+    {
+        var value = cell.CellValue?.Text ?? string.Empty;
+
+        if (cell.DataType?.Value == CellValues.SharedString)
+        {
+            var stringTable = workbookPart.SharedStringTablePart?.SharedStringTable;
+            if (stringTable == null)
+                return string.Empty;
+
+            if (int.TryParse(value, out var index) && index >= 0 && index < stringTable.ChildElements.Count)
+            {
+                return stringTable.ChildElements[index].InnerText;
+            }
+        }
+
+        return value;
     }
 
     private static void CreateExcelFile(string filePath, IEnumerable<Equipment> items)

@@ -9,10 +9,13 @@
                FontSize="22"
                FontAttributes="Bold" />
 
-        <Button Grid.Row="1"
-                Text="Выгрузить в Excel"
-                HorizontalOptions="Start"
-                Clicked="OnExportToExcelClicked" />
+        <HorizontalStackLayout Grid.Row="1" Spacing="10">
+            <Button Text="Загрузить из Excel"
+                    Clicked="OnImportFromExcelClicked" />
+
+            <Button Text="Выгрузить в Excel"
+                    Clicked="OnExportToExcelClicked" />
+        </HorizontalStackLayout>
 
         <CollectionView Grid.Row="2"
                         ItemsSource="{Binding EquipmentItems}">
@@ -29,16 +32,30 @@
                            Margin="0,0,0,10"
                            BorderColor="#E0E0E0"
                            CornerRadius="8">
-                        <VerticalStackLayout Spacing="4">
-                            <Label Text="{Binding Type}"
-                                   FontAttributes="Bold"
-                                   FontSize="18" />
-                            <Label Text="{Binding InventoryNumber, StringFormat='Инвентарный номер: {0}'}" />
-                            <Label Text="{Binding Office, StringFormat='Кабинет: {0}'}" />
-                            <Label Text="{Binding Status, StringFormat='Статус: {0}'}" />
-                            <Label Text="{Binding Description}"
-                                   TextColor="Gray" />
-                        </VerticalStackLayout>
+                        <Grid RowDefinitions="Auto,Auto"
+                              ColumnDefinitions="*,Auto"
+                              RowSpacing="8"
+                              ColumnSpacing="8">
+                            <VerticalStackLayout Grid.Row="0"
+                                                 Grid.Column="0"
+                                                 Grid.ColumnSpan="2"
+                                                 Spacing="4">
+                                <Label Text="{Binding Type}"
+                                       FontAttributes="Bold"
+                                       FontSize="18" />
+                                <Label Text="{Binding InventoryNumber, StringFormat='Инвентарный номер: {0}'}" />
+                                <Label Text="{Binding Office, StringFormat='Кабинет: {0}'}" />
+                                <Label Text="{Binding Status, StringFormat='Статус: {0}'}" />
+                                <Label Text="{Binding Description}"
+                                       TextColor="Gray" />
+                            </VerticalStackLayout>
+
+                            <Button Grid.Row="1"
+                                    Grid.Column="1"
+                                    Text="Редактировать"
+                                    Clicked="OnEditEquipmentClicked"
+                                    CommandParameter="{Binding .}" />
+                        </Grid>
                     </Frame>
                 </DataTemplate>
             </CollectionView.ItemTemplate>
