@@ -2,6 +2,7 @@ using System.Collections.ObjectModel;
 using DocumentFormat.OpenXml;
 using DocumentFormat.OpenXml.Packaging;
 using DocumentFormat.OpenXml.Spreadsheet;
+using OpenXmlCell = DocumentFormat.OpenXml.Spreadsheet.Cell;
 using qrschool.Models;
 using qrschool.Services;
 
@@ -214,7 +215,7 @@ public partial class EquipmentListPage : ContentPage
 
         foreach (var row in rows)
         {
-            var values = row.Elements<Cell>().Select(c => GetCellValue(workbookPart, c)).ToList();
+            var values = row.Elements<OpenXmlCell>().Select(c => GetCellValue(workbookPart, c)).ToList();
             if (values.All(string.IsNullOrWhiteSpace))
                 continue;
 
@@ -239,7 +240,7 @@ public partial class EquipmentListPage : ContentPage
         return $"{item.Type?.Trim()}|{item.Office?.Trim()}|{item.Status?.Trim()}|{item.Description?.Trim()}";
     }
 
-    private static string GetCellValue(WorkbookPart workbookPart, Cell cell)
+    private static string GetCellValue(WorkbookPart workbookPart, OpenXmlCell cell)
     {
         var value = cell.CellValue?.Text ?? string.Empty;
 
@@ -300,7 +301,7 @@ public partial class EquipmentListPage : ContentPage
 
         foreach (var value in values)
         {
-            row.Append(new Cell
+            row.Append(new OpenXmlCell
             {
                 DataType = CellValues.String,
                 CellValue = new CellValue(value ?? string.Empty)
