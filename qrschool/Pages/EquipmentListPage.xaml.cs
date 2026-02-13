@@ -71,17 +71,31 @@ public partial class EquipmentListPage : ContentPage
                 return;
             }
 
+            var existingItems = await _equipmentService.GetAllEquipmentAsync();
+            var existingKeys = new HashSet<string>(existingItems.Select(GetUniqueKey), StringComparer.OrdinalIgnoreCase);
+            var importedKeys = new HashSet<string>(StringComparer.OrdinalIgnoreCase);
+
             var importedCount = 0;
+            var skippedCount = 0;
             foreach (var item in importedItems)
             {
+                var key = GetUniqueKey(item);
+                if (existingKeys.Contains(key) || importedKeys.Contains(key))
+                {
+                    skippedCount++;
+                    continue;
+                }
+
                 if (await _equipmentService.AddEquipmentAsync(item))
                 {
                     importedCount++;
+                    existingKeys.Add(key);
+                    importedKeys.Add(key);
                 }
             }
 
             await LoadEquipmentAsync();
-            await DisplayAlert("Импорт завершён", $"Успешно импортировано записей: {importedCount}", "OK");
+            await DisplayAlert("Импорт завершён", $"Импортировано: {importedCount}\nПропущено дубликатов: {skippedCount}", "OK");
         }
         catch (Exception ex)
         {
@@ -127,6 +141,30 @@ public partial class EquipmentListPage : ContentPage
         if (!success)
         {
             await DisplayAlert("Ошибка", "Не удалось сохранить изменения.", "OK");
+            return;
+        }
+
+        await LoadEquipmentAsync();
+    }
+
+    private async void OnDeleteEquipmentClicked(object sender, EventArgs e)
+    {
+        if (sender is not Button { CommandParameter: Equipment equipment })
+            return;
+
+        var confirm = await DisplayAlert(
+            "Удаление",
+            $"Удалить запись с инвентарным номером '{equipment.InventoryNumber}'?",
+            "Да",
+            "Нет");
+
+        if (!confirm)
+            return;
+
+        var success = await _equipmentService.DeleteEquipmentAsync(equipment.Id);
+        if (!success)
+        {
+            await DisplayAlert("Ошибка", "Не удалось удалить запись.", "OK");
             return;
         }
 
@@ -182,14 +220,23 @@ public partial class EquipmentListPage : ContentPage
 
             yield return new Equipment
             {
-                Type = values.ElementAtOrDefault(0) ?? string.Empty,
-                InventoryNumber = values.ElementAtOrDefault(1) ?? string.Empty,
-                Office = values.ElementAtOrDefault(2) ?? string.Empty,
-                Status = values.ElementAtOrDefault(3) ?? string.Empty,
-                Description = values.ElementAtOrDefault(4) ?? string.Empty,
+                Type = values.ElementAtOrDefault(0)?.Trim() ?? string.Empty,
+                InventoryNumber = values.ElementAtOrDefault(1)?.Trim() ?? string.Empty,
+                Office = values.ElementAtOrDefault(2)?.Trim() ?? string.Empty,
+                Status = values.ElementAtOrDefault(3)?.Trim() ?? string.Empty,
+                Description = values.ElementAtOrDefault(4)?.Trim() ?? string.Empty,
                 CreatedDate = DateTime.Now
             };
         }
+    }
+
+    private static string GetUniqueKey(Equipment item)
+    {
+        var inventory = item.InventoryNumber?.Trim() ?? string.Empty;
+        if (!string.IsNullOrWhiteSpace(inventory))
+            return inventory;
+
+        return $"{item.Type?.Trim()}|{item.Office?.Trim()}|{item.Status?.Trim()}|{item.Description?.Trim()}";
     }
 
     private static string GetCellValue(WorkbookPart workbookPart, Cell cell)

@@ -50,11 +50,17 @@
                                        TextColor="Gray" />
                             </VerticalStackLayout>
 
-                            <Button Grid.Row="1"
-                                    Grid.Column="1"
-                                    Text="Редактировать"
-                                    Clicked="OnEditEquipmentClicked"
-                                    CommandParameter="{Binding .}" />
+                            <HorizontalStackLayout Grid.Row="1"
+                                                   Grid.Column="1"
+                                                   Spacing="8">
+                                <Button Text="Редактировать"
+                                        Clicked="OnEditEquipmentClicked"
+                                        CommandParameter="{Binding .}" />
+                                <Button Text="Удалить"
+                                        TextColor="Red"
+                                        Clicked="OnDeleteEquipmentClicked"
+                                        CommandParameter="{Binding .}" />
+                            </HorizontalStackLayout>
                         </Grid>
                     </Frame>
                 </DataTemplate>
