@@ -26,39 +26,7 @@ namespace qrschool.Services
 
         private void InitializeMockData()
         {
-            _mockDatabase = new List<Equipment>
-            {
-                new Equipment
-                {
-                    Id = _nextId++,
-                    Type = "Компьютер",
-                    InventoryNumber = "INV-001",
-                    Office = "101",
-                    Status = "Рабочий",
-                    Description = "Игровой ПК для разработки",
-                    CreatedDate = DateTime.Now.AddDays(-10)
-                },
-                new Equipment
-                {
-                    Id = _nextId++,
-                    Type = "Монитор",
-                    InventoryNumber = "INV-002",
-                    Office = "102",
-                    Status = "Рабочий",
-                    Description = "27-дюймовый 4K монитор",
-                    CreatedDate = DateTime.Now.AddDays(-5)
-                },
-                new Equipment
-                {
-                    Id = _nextId++,
-                    Type = "Принтер",
-                    InventoryNumber = "INV-003",
-                    Office = "201",
-                    Status = "В ремонте",
-                    Description = "Лазерный принтер HP",
-                    CreatedDate = DateTime.Now.AddDays(-2)
-                }
-            };
+            _mockDatabase = new List<Equipment>();
         }
 
         public async Task<bool> AddEquipmentAsync(Equipment equipment)
