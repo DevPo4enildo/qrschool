@@ -32,17 +32,17 @@ public partial class ScanPage : ContentPage
         {
             if (item == null)
             {
-                TypeLabel.Text = "Тип: —";
-                RoomLabel.Text = "Кабинет: —";
-                StatusLabel.Text = "Не найдено";
+                TypeLabel.Text = "РўРёРї: вЂ”";
+                RoomLabel.Text = "РљР°Р±РёРЅРµС‚: вЂ”";
+                StatusLabel.Text = "РќРµ РЅР°Р№РґРµРЅРѕ";
                 DescriptionLabel.Text = "";
             }
             else
             {
-                TypeLabel.Text = $"Тип: {item.ObjectType}";
-                RoomLabel.Text = $"Кабинет: {item.RoomName ?? "—"}";
-                StatusLabel.Text = $"Статус: {item.Status}";
-                DescriptionLabel.Text = item.Description ?? "—";
+                TypeLabel.Text = $"РўРёРї: {item.ObjectType}";
+                RoomLabel.Text = $"РљР°Р±РёРЅРµС‚: {item.RoomName ?? "вЂ”"}";
+                StatusLabel.Text = $"РЎС‚Р°С‚СѓСЃ: {item.Status}";
+                DescriptionLabel.Text = item.Description ?? "вЂ”";
             }
         });
 
