@@ -1,4 +1,4 @@
-﻿using qrschool.Models;
+using qrschool.Models;
 
 namespace qrschool.Services
 {
@@ -6,7 +6,7 @@ namespace qrschool.Services
     {
         Task<bool> AddEquipmentAsync(Equipment equipment);
         Task<List<Equipment>> GetAllEquipmentAsync();
-        Task<Equipment> GetEquipmentByIdAsync(int id);
+        Task<Equipment?> GetEquipmentByIdAsync(int id);
         Task<bool> UpdateEquipmentAsync(Equipment equipment);
         Task<bool> DeleteEquipmentAsync(int id);
         Task<List<string>> GetEquipmentTypesAsync();
@@ -16,7 +16,7 @@ namespace qrschool.Services
 
     public class MockEquipmentService : IEquipmentService
     {
-        private List<Equipment> _mockDatabase;
+        private List<Equipment> _mockDatabase = new();
         private int _nextId = 1;
 
         public MockEquipmentService()
@@ -86,7 +86,7 @@ namespace qrschool.Services
             return new List<Equipment>(_mockDatabase);
         }
 
-        public async Task<Equipment> GetEquipmentByIdAsync(int id)
+        public async Task<Equipment?> GetEquipmentByIdAsync(int id)
         {
             await Task.Delay(100);
             return _mockDatabase.FirstOrDefault(e => e.Id == id);

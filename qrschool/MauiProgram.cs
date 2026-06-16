@@ -1,6 +1,7 @@
 ﻿using Microsoft.Extensions.Logging;
 using qrschool.Service;
 using qrschool.Pages;
+using qrschool.Services;
 using ZXing.Net.Maui;
 using ZXing.Net.Maui.Controls;
 
@@ -21,6 +22,7 @@ namespace qrschool
                 });
             string connectionString = "Host=localhost;Port=5432;Database=postgres;Username=postgres;Password=123";
             builder.Services.AddSingleton<InventoryRepository>(_ => new InventoryRepository(connectionString));
+            builder.Services.AddSingleton<IEquipmentService, MockEquipmentService>();
 
             builder.Services.AddTransient<MainPage>();
             builder.Services.AddTransient<ScanPage>();

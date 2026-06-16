@@ -35,7 +35,7 @@
                         <Button Grid.Column="1"
                             Text="+"
                             WidthRequest="50"
-                            Command="{Binding AddOfficeCommand}"
+                            Command="{Binding AddNewOfficeCommand}"
                             Margin="10,0,0,0"/>
                     </Grid>
                 </VerticalStackLayout>
