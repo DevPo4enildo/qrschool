@@ -16,37 +16,57 @@ public partial class ScanPage : ContentPage
 
     private async void CameraView_BarcodesDetected(object sender, BarcodeDetectionEventArgs e)
     {
-        if (_isProcessing) return;
+        if (_isProcessing)
+            return;
 
         var result = e.Results?.FirstOrDefault();
-        if (result == null) return;
-
-        var code = result.Value?.Trim();
-        if (string.IsNullOrEmpty(code)) return;
+        var code = result?.Value?.Trim();
+        if (string.IsNullOrWhiteSpace(code))
+            return;
 
         _isProcessing = true;
 
-        var item = await _repo.GetByCodeAsync(code);
-
-        MainThread.BeginInvokeOnMainThread(() =>
+        try
         {
-            if (item == null)
+            MainThread.BeginInvokeOnMainThread(() =>
             {
-                TypeLabel.Text = "Тип: —";
-                RoomLabel.Text = "Кабинет: —";
-                StatusLabel.Text = "Не найдено";
-                DescriptionLabel.Text = "";
-            }
-            else
-            {
-                TypeLabel.Text = $"Тип: {item.ObjectType}";
-                RoomLabel.Text = $"Кабинет: {item.RoomName ?? "—"}";
-                StatusLabel.Text = $"Статус: {item.Status}";
-                DescriptionLabel.Text = item.Description ?? "—";
-            }
-        });
+                CodeLabel.Text = $"Код: {code}";
+                StatusLabel.Text = "Идёт поиск...";
+            });
 
-        await Task.Delay(1500);
-        _isProcessing = false;
+            var item = await _repo.GetByCodeAsync(code);
+
+            MainThread.BeginInvokeOnMainThread(() =>
+            {
+                if (!string.IsNullOrWhiteSpace(_repo.LastError))
+                {
+                    TypeLabel.Text = "Тип: —";
+                    RoomLabel.Text = "Кабинет: —";
+                    StatusLabel.Text = "Ошибка подключения к базе";
+                    DescriptionLabel.Text = _repo.LastError;
+                    return;
+                }
+
+                if (item == null)
+                {
+                    TypeLabel.Text = "Тип: —";
+                    RoomLabel.Text = "Кабинет: —";
+                    StatusLabel.Text = "Не найдено";
+                    DescriptionLabel.Text = "Описание: —";
+                }
+                else
+                {
+                    TypeLabel.Text = $"Тип: {item.ObjectType}";
+                    RoomLabel.Text = $"Кабинет: {item.RoomName ?? "—"}";
+                    StatusLabel.Text = $"Статус: {item.Status}";
+                    DescriptionLabel.Text = $"Описание: {item.Description ?? "—"}";
+                }
+            });
+        }
+        finally
+        {
+            await Task.Delay(1500);
+            _isProcessing = false;
+        }
     }
 }
