@@ -20,28 +20,28 @@ public partial class CRUDPage : ContentPage
         private readonly IEquipmentService _equipmentService;
 
         [ObservableProperty]
-        private Equipment _equipment;
+        private Equipment _equipment = new();
 
         [ObservableProperty]
-        private ObservableCollection<string> _equipmentTypes;
+        private ObservableCollection<string> _equipmentTypes = new();
 
         [ObservableProperty]
-        private ObservableCollection<string> _statusOptions;
+        private ObservableCollection<string> _statusOptions = new();
 
         [ObservableProperty]
-        private ObservableCollection<string> _officeList;
+        private ObservableCollection<string> _officeList = new();
 
         [ObservableProperty]
         private bool _isBusy;
 
         [ObservableProperty]
-        private string _selectedType;
+        private string _selectedType = string.Empty;
 
         [ObservableProperty]
-        private string _selectedOffice;
+        private string _selectedOffice = string.Empty;
 
         [ObservableProperty]
-        private string _selectedStatus;
+        private string _selectedStatus = string.Empty;
 
         public ICommand SaveCommand { get; }
         public ICommand CancelCommand { get; }
@@ -60,7 +60,7 @@ public partial class CRUDPage : ContentPage
             CancelCommand = new AsyncRelayCommand(OnCancelAsync);
             AddNewOfficeCommand = new AsyncRelayCommand(OnAddNewOfficeAsync);
 
-            LoadDataAsync();
+            _ = LoadDataAsync();
         }
 
         private async Task LoadDataAsync()
@@ -87,7 +87,7 @@ public partial class CRUDPage : ContentPage
             }
             catch (Exception ex)
             {
-                await Application.Current.MainPage.DisplayAlert("Ошибка",
+                await Application.Current!.MainPage!.DisplayAlert("Ошибка",
                     $"Не удалось загрузить данные: {ex.Message}", "OK");
             }
             finally
@@ -103,21 +103,21 @@ public partial class CRUDPage : ContentPage
                 // Валидация
                 if (string.IsNullOrWhiteSpace(Equipment.Type))
                 {
-                    await Application.Current.MainPage.DisplayAlert("Ошибка",
+                    await Application.Current!.MainPage!.DisplayAlert("Ошибка",
                         "Укажите тип техники", "OK");
                     return;
                 }
 
                 if (string.IsNullOrWhiteSpace(Equipment.Office))
                 {
-                    await Application.Current.MainPage.DisplayAlert("Ошибка",
+                    await Application.Current!.MainPage!.DisplayAlert("Ошибка",
                         "Укажите кабинет", "OK");
                     return;
                 }
 
                 if (string.IsNullOrWhiteSpace(Equipment.Status))
                 {
-                    await Application.Current.MainPage.DisplayAlert("Ошибка",
+                    await Application.Current!.MainPage!.DisplayAlert("Ошибка",
                         "Укажите статус", "OK");
                     return;
                 }
@@ -129,24 +129,24 @@ public partial class CRUDPage : ContentPage
 
                 if (result)
                 {
-                    await Application.Current.MainPage.DisplayAlert("Успех",
+                    await Application.Current!.MainPage!.DisplayAlert("Успех",
                         "Техника успешно добавлена!", "OK");
 
                     // Очистка формы
                     Equipment = new Equipment();
 
                     // Возврат на предыдущую страницу
-                    await Application.Current.MainPage.Navigation.PopAsync();
+                    await Application.Current!.MainPage!.Navigation.PopAsync();
                 }
                 else
                 {
-                    await Application.Current.MainPage.DisplayAlert("Ошибка",
+                    await Application.Current!.MainPage!.DisplayAlert("Ошибка",
                         "Не удалось сохранить технику", "OK");
                 }
             }
             catch (Exception ex)
             {
-                await Application.Current.MainPage.DisplayAlert("Ошибка",
+                await Application.Current!.MainPage!.DisplayAlert("Ошибка",
                     $"Ошибка сохранения: {ex.Message}", "OK");
             }
             finally
@@ -157,7 +157,7 @@ public partial class CRUDPage : ContentPage
 
         private async Task OnCancelAsync()
         {
-            bool confirm = await Application.Current.MainPage.DisplayAlert(
+            bool confirm = await Application.Current!.MainPage!.DisplayAlert(
                 "Подтверждение",
                 "Отменить добавление техники? Все несохранённые данные будут потеряны.",
                 "Да, отменить",
@@ -165,13 +165,13 @@ public partial class CRUDPage : ContentPage
 
             if (confirm)
             {
-                await Application.Current.MainPage.Navigation.PopAsync();
+                await Application.Current!.MainPage!.Navigation.PopAsync();
             }
         }
 
         private async Task OnAddNewOfficeAsync()
         {
-            string newOffice = await Application.Current.MainPage.DisplayPromptAsync(
+            string? newOffice = await Application.Current!.MainPage!.DisplayPromptAsync(
                 "Новый кабинет",
                 "Введите номер кабинета:",
                 "Добавить",
@@ -196,7 +196,7 @@ public partial class CRUDPage : ContentPage
                 }
                 else
                 {
-                    await Application.Current.MainPage.DisplayAlert("Внимание",
+                    await Application.Current!.MainPage!.DisplayAlert("Внимание",
                         "Такой кабинет уже существует", "OK");
                 }
             }

@@ -7,6 +7,8 @@ namespace qrschool.Service
     {
         private readonly string _connectionString;
 
+        public string? LastError { get; private set; }
+
         public InventoryRepository(string connectionString)
         {
             _connectionString = connectionString;
@@ -14,22 +16,32 @@ namespace qrschool.Service
 
         public async Task<InventoryItemDto?> GetByCodeAsync(string code)
         {
-            await using var conn = new NpgsqlConnection(_connectionString);
-            await conn.OpenAsync();
+            LastError = null;
 
-            var computer = await FindComputerAsync(conn, code);
-            if (computer != null)
-                return computer;
+            try
+            {
+                await using var conn = new NpgsqlConnection(_connectionString);
+                await conn.OpenAsync();
 
-            var monitor = await FindMonitorAsync(conn, code);
-            if (monitor != null)
-                return monitor;
+                var computer = await FindComputerAsync(conn, code);
+                if (computer != null)
+                    return computer;
 
-            var per = await FindPeripheralAsync(conn, code);
-            if (per != null)
-                return per;
+                var monitor = await FindMonitorAsync(conn, code);
+                if (monitor != null)
+                    return monitor;
 
-            return null;
+                var per = await FindPeripheralAsync(conn, code);
+                if (per != null)
+                    return per;
+
+                return null;
+            }
+            catch (Exception ex)
+            {
+                LastError = ex.Message;
+                return null;
+            }
         }
 
         private static async Task<InventoryItemDto?> FindComputerAsync(NpgsqlConnection conn, string code)

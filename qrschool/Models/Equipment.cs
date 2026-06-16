@@ -6,11 +6,12 @@ namespace qrschool.Models
     public class Equipment : INotifyPropertyChanged
     {
         private int _id;
-        private string _type;
-        private string _office;
-        private string _status;
-        private string _description;
-        private DateTime _createdDate;
+        private string _type = string.Empty;
+        private string _office = string.Empty;
+        private string _status = string.Empty;
+        private string _description = string.Empty;
+        private DateTime _createdDate = DateTime.Now;
+
         public int Id
         {
             get => _id;
@@ -47,16 +48,16 @@ namespace qrschool.Models
             set => SetProperty(ref _createdDate, value);
         }
 
-        public event PropertyChangedEventHandler PropertyChanged;
+        public event PropertyChangedEventHandler? PropertyChanged;
 
-        protected virtual void OnPropertyChanged([CallerMemberName] string propertyName = null)
+        protected virtual void OnPropertyChanged([CallerMemberName] string? propertyName = null)
         {
             PropertyChanged?.Invoke(this, new PropertyChangedEventArgs(propertyName));
         }
 
         protected bool SetProperty<T>(ref T backingStore, T value,
             [CallerMemberName] string propertyName = "",
-            Action onChanged = null)
+            Action? onChanged = null)
         {
             if (EqualityComparer<T>.Default.Equals(backingStore, value))
                 return false;

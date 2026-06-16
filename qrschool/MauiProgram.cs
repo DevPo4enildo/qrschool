@@ -20,7 +20,8 @@ namespace qrschool
                     fonts.AddFont("OpenSans-Regular.ttf", "OpenSansRegular");
                     fonts.AddFont("OpenSans-Semibold.ttf", "OpenSansSemibold");
                 });
-            string connectionString = "Host=localhost;Port=5432;Database=postgres;Username=postgres;Password=123";
+            var connectionString = Environment.GetEnvironmentVariable("QRSCHOOL_DB")
+                ?? "Host=localhost;Port=5432;Database=postgres;Username=postgres;Password=123";
             builder.Services.AddSingleton<InventoryRepository>(_ => new InventoryRepository(connectionString));
             builder.Services.AddSingleton<IEquipmentService, MockEquipmentService>();
 

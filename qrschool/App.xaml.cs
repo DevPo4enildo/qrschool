@@ -1,5 +1,4 @@
 ﻿using qrschool.Pages;
-using qrschool.Service;
 
 namespace qrschool
 {
